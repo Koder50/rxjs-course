@@ -3,6 +3,7 @@ import { MAT_DIALOG_DATA, MatDialogRef } from "@angular/material/dialog";
 import {Course} from "../model/course";
 import {FormBuilder, Validators, FormGroup} from "@angular/forms";
 import * as moment from 'moment';
+import {Observable} from 'rxjs';
 import {fromEvent} from 'rxjs';
 import {concatMap, distinctUntilChanged, exhaustMap, filter, mergeMap} from 'rxjs/operators';
 import {fromPromise} from 'rxjs/internal-compatibility';
@@ -17,7 +18,7 @@ export class CourseDialogComponent implements OnInit, AfterViewInit {
     form: FormGroup;
     course:Course;
 
-    @ViewChild('saveButton', { static: true }) saveButton: ElementRef;
+    @ViewChild('saveButton', { read: ElementRef }) saveButton: ElementRef;
 
     @ViewChild('searchInput', { static: true }) searchInput : ElementRef;
 
@@ -39,20 +40,59 @@ export class CourseDialogComponent implements OnInit, AfterViewInit {
 
     ngOnInit() {
 
+        // this.form.valueChanges
+        // .pipe(
+        //     filter(() => this.form.valid)
+        // )
+        // .subscribe(changes=>{
 
+        //     const saveCourse$ = fromPromise(fetch(`api/courses/${this.course.id}`,{
+        //         method: "PUT",
+        //         body: JSON.stringify(changes),
+        //         headers: {
+        //             'content-type': 'application/json'
+        //         }
+        //     }));
+
+        //     saveCourse$.subscribe();
+        // });
+
+        // this.form.valueChanges
+        // .pipe(
+        //     filter(() => this.form.valid),
+        //     // mergeMap(changes=>this.saveCourse(changes))
+        //     // concatMap(changes=>this.saveCourse(changes))
+        //     concatMap(changes=>this.saveCourse(changes))
+        // )
+        // .subscribe();
 
     }
-
-
 
     ngAfterViewInit() {
 
+        fromEvent(this.saveButton.nativeElement,'click')
+        .pipe(
+            exhaustMap(()=>this.saveCourse(this.form.value))
+        )
+        .subscribe(log=>console.log(log));
 
     }
 
-    save() {
+    saveCourse(changes): Observable<Response> {
+        return fromPromise(fetch(`api/courses/${this.course.id}`,{
+            method: "PUT",
+            body: JSON.stringify(changes),
+            headers: {
+                'content-type': 'application/json'
+            }
+        }));
+
+    }
+
+
+    // save() {
         
-    }
+    // }
 
     close() {
         this.dialogRef.close();
