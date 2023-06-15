@@ -50,5 +50,8 @@ export class CourseDialogComponent implements AfterViewInit {
         this.dialogRef.close();
     }
 
+    save() {
+        
+    }
 
 }
